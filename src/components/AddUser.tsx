@@ -109,6 +109,7 @@ const AddUser = ({ isModalOpen, onClose, areaCode }: Props) => {
     if (isModalOpen && !formik.values.refNo) {
       formik.setFieldValue("refNo", calculateNextRefNo());
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isModalOpen, usersData]);
 
   const { values, errors, touched, handleChange, handleBlur, handleSubmit } =

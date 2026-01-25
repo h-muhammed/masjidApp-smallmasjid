@@ -65,7 +65,7 @@ const CentralizedPayment = ({ isModalOpen, onClose }: Props) => {
     if (subAmount > 0) {
       setAmount(subAmount);
     }
-  }, [userData?.uid]);
+  }, [userData]);
 
   // Get non-paid months for selected year
   const nonPaidMonths = useMemo(() => {

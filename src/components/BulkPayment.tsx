@@ -81,7 +81,7 @@ const BulkPayment = ({ isModalOpen, onClose, areaCode }: Props) => {
         }))
       );
     }
-  }, [nonPaidUsers]);
+  }, [nonPaidUsers, paymentEntries.length]);
 
   const handleCloseModal = () => {
     setPaymentEntries([]);
@@ -274,7 +274,7 @@ const BulkPayment = ({ isModalOpen, onClose, areaCode }: Props) => {
                 ></path>
               </svg>
               <span>
-                {nonPaidUsers.length} user(s) haven't paid for{" "}
+                {nonPaidUsers.length} user(s) haven&apos;t paid for{" "}
                 {MONTHS.find((m) => m.value === selectedMonth)?.label} {selectedYear}
               </span>
             </div>

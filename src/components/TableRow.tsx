@@ -43,6 +43,7 @@ const TableRow = ({ user }: Props) => {
 
   const handleSave = () => {
     // Filter out fields that shouldn't be updated (uid, areaId, areaCode)
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { uid, areaId, areaCode, ...updatableFields } = editFormData;
     editUserMutation.mutate({ 
       userId: user.uid, 

@@ -169,13 +169,14 @@ export const editUser = async (
     // First, try to update using userId as document ID (for documents created with uid as ID)
     const userDoc = doc(firestore, "users", userId);
     await updateDoc(userDoc, updatedData);
-  } catch (error: any) {
+  } catch (error: unknown) {
     // Check if it's a "document not found" error
+    const firestoreError = error as { code?: string | number; message?: string };
     const isNotFoundError = 
-      error?.code === "not-found" || 
-      error?.code === 5 || // Firestore error code 5 is NOT_FOUND
-      error?.message?.includes("No document to update") ||
-      error?.message?.includes("not found");
+      firestoreError?.code === "not-found" || 
+      firestoreError?.code === 5 || // Firestore error code 5 is NOT_FOUND
+      firestoreError?.message?.includes("No document to update") ||
+      firestoreError?.message?.includes("not found");
 
     if (isNotFoundError) {
       // If document doesn't exist with that ID, query by uid field
@@ -192,7 +193,7 @@ export const editUser = async (
       await updateDoc(userDocRef, updatedData);
     } else {
       // Re-throw other errors
-      console.error("Error updating user:", error);
+      console.error("Error updating user:", firestoreError);
       throw error;
     }
   }
