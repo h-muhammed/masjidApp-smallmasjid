@@ -33,3 +33,15 @@ export interface PaymentType {
   paidAt: Timestamp;
   status: string;
 }
+
+export interface DonationType {
+  id?: string;
+  userId: string;
+  areaId: string; // For area-level reporting
+  donationType: string; // e.g., "Zakat", "Dry Ration Pack", etc.
+  amount?: number; // For monetary donations
+  quantity?: number; // For item-based donations (e.g., packs)
+  description?: string;
+  givenAt: Timestamp;
+  givenBy?: string; // Optional: who gave the donation
+}

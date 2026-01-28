@@ -9,6 +9,7 @@ import { firestore } from "@/config/firebase";
 import AnalyticsCard from "@/components/AnalyticsCard";
 import AreaCard from "@/components/AreaCard";
 import CentralizedPayment from "@/components/CentralizedPayment";
+import LoadingScreen from "@/components/LoadingScreen";
 import { AreaType } from "@/types/types";
 import { NextPage } from "next";
 import { useFirebase } from "@/contexts/firebaseContext";
@@ -47,27 +48,30 @@ const Home: NextPage = () => {
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const [todayCollection, setTodayCollection] = useState(0);
   const [monthCollection, setMonthCollection] = useState(0);
+  const [collectionsLoading, setCollectionsLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
+        setCollectionsLoading(true);
         //const currentYear = new Date().getFullYear(); // Get the current year dynamically
-        fetchTodayCollection().then(setTodayCollection);
-        fetchMonthCollection().then(setMonthCollection);
+        await Promise.all([
+          fetchTodayCollection().then(setTodayCollection),
+          fetchMonthCollection().then(setMonthCollection),
+        ]);
       } catch (error) {
         console.error("Error fetching data:", error);
+      } finally {
+        setCollectionsLoading(false);
       }
     };
 
     fetchData();
   }, []);
 
-  if (loading || usersLoading || areasLoading) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="spinner" />
-      </div>
-    );
+  // Show loading screen while fetching all dashboard data
+  if (loading || usersLoading || areasLoading || collectionsLoading) {
+    return <LoadingScreen />;
   }
 
   if (!user) {

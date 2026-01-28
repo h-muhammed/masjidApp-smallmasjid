@@ -15,7 +15,7 @@ import {
 } from "firebase/firestore";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { AreaType, PaymentType, UserType } from "@/types/types";
+import { AreaType, PaymentType, UserType, DonationType } from "@/types/types";
 
 const getAreas = async () => {
   const areasCollection = collection(firestore, "areas");
@@ -492,3 +492,119 @@ export const useGetPaymentsOfArea = (areaId: string) => {
   });
 };
 
+// Donation API Functions
+
+const getDonationsOfUser = async (userId: string) => {
+  const donationsCollection = collection(firestore, "donations");
+  const donationQuery = query(donationsCollection, where("userId", "==", userId));
+  const snapshot = await getDocs(donationQuery);
+  return snapshot.docs.map(
+    (doc) => ({ id: doc.id, ...doc.data() } as DonationType)
+  );
+};
+
+export const useGetDonationsOfUser = (userId: string) => {
+  return useQuery({
+    queryKey: ["user-donation", userId],
+    queryFn: () => getDonationsOfUser(userId),
+    enabled: !!userId,
+  });
+};
+
+const getDonationsOfArea = async (areaId: string) => {
+  const donationsCollection = collection(firestore, "donations");
+  const donationQuery = query(donationsCollection, where("areaId", "==", areaId));
+  const snapshot = await getDocs(donationQuery);
+  return snapshot.docs.map(
+    (doc) => ({ id: doc.id, ...doc.data() } as DonationType)
+  );
+};
+
+export const useGetDonationsOfArea = (areaId: string) => {
+  return useQuery({
+    queryKey: ["area-donation", areaId],
+    queryFn: () => getDonationsOfArea(areaId),
+    enabled: !!areaId,
+  });
+};
+
+export const addDonation = async (donation: DonationType) => {
+  const donationCollection = collection(firestore, "donations");
+  await addDoc(donationCollection, donation);
+  return donation;
+};
+
+export const useAddDonation = (onSuccess: () => void, onError: () => void) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (donation: DonationType) => addDonation(donation),
+    onError,
+    onSuccess: (donation: DonationType) => {
+      queryClient.invalidateQueries({
+        queryKey: ["user-donation", donation.userId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["area-donation", donation.areaId],
+      });
+      onSuccess();
+    },
+  });
+};
+
+export const editDonation = async (
+  donationId: string,
+  updatedData: Partial<DonationType>
+) => {
+  const donationDoc = doc(firestore, "donations", donationId);
+  await updateDoc(donationDoc, updatedData);
+  return updatedData;
+};
+
+export const useEditDonation = (onSuccess: () => void, onError: () => void) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: {
+      donationId: string;
+      updatedData: Partial<DonationType>;
+    }) => editDonation(data.donationId, data.updatedData),
+    onError,
+    onSuccess: (donation: Partial<DonationType>) => {
+      queryClient.invalidateQueries({
+        queryKey: ["user-donation", donation.userId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["area-donation", donation.areaId],
+      });
+      onSuccess();
+    },
+  });
+};
+
+export const deleteDonation = async (donationId: string, userId: string) => {
+  const donationDoc = doc(firestore, "donations", donationId);
+  await deleteDoc(donationDoc);
+  return { donationId, userId };
+};
+
+export const useDeleteDonation = (
+  onSuccess: () => void,
+  onError: () => void
+) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      donationId,
+      userId,
+    }: {
+      donationId: string;
+      userId: string;
+    }) => deleteDonation(donationId, userId),
+    onError,
+    onSuccess: ({ userId }: { userId: string }) => {
+      queryClient.invalidateQueries({
+        queryKey: ["user-donation", userId],
+      });
+      onSuccess();
+    },
+  });
+};

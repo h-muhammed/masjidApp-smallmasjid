@@ -1,20 +1,18 @@
-import { useDeletePayment, useEditPayment } from "@/api/areaApi";
-import { PaymentType } from "@/types/types";
-import {
-  formatLocalDateTime,
-  MONTHS,
-  PAYMENT_STATUSES,
-} from "@/utils/commonUtils";
+import { useDeleteDonation, useEditDonation } from "@/api/areaApi";
+import { DonationType } from "@/types/types";
+import { getDonationTypeConfig, DONATION_TYPES } from "@/utils/donationTypes";
 import React, { useEffect, useState } from "react";
 import Select from "react-select";
+import { formatLocalDateTime } from "@/utils/commonUtils";
+import { Timestamp } from "firebase/firestore";
 
 interface Props {
-  payment: PaymentType;
+  donation: DonationType;
 }
 
-const UserPaymentRow = ({ payment }: Props) => {
+const UserDonationRow = ({ donation }: Props) => {
   const [isEditing, setIsEditing] = useState(false);
-  const [editFormData, setEditFormData] = useState(payment);
+  const [editFormData, setEditFormData] = useState(donation);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
@@ -25,38 +23,43 @@ const UserPaymentRow = ({ payment }: Props) => {
     }
   }, [toastMessage]);
 
-  const editUserMutation = useEditPayment(
+  const editDonationMutation = useEditDonation(
     () => {
       setIsEditing(false);
-      setToastMessage("Payment Updated Successfully!");
+      setToastMessage("Donation Updated Successfully!");
     },
-    () => alert("Failed to update payment")
+    () => setToastMessage("Failed to update donation")
   );
-  const deleteUserMutation = useDeletePayment(
-    () => setToastMessage("Payment Deleted Successfully!"),
-    () => setToastMessage("Failed to delete payment")
+  const deleteDonationMutation = useDeleteDonation(
+    () => setToastMessage("Donation Deleted Successfully!"),
+    () => setToastMessage("Failed to delete donation")
   );
 
   const handleEdit = () => setIsEditing(true);
 
   const handleSave = () => {
-    editUserMutation.mutate({
-      paymentId: payment.id as string,
+    editDonationMutation.mutate({
+      donationId: donation.id as string,
       updatedData: editFormData,
     });
   };
 
   const handleDelete = () => {
-    deleteUserMutation.mutate({
-      paymentId: payment?.id as string,
-      userId: payment?.userId as string,
+    deleteDonationMutation.mutate({
+      donationId: donation?.id as string,
+      userId: donation?.userId as string,
     });
     setIsDeleteModalOpen(false);
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setEditFormData({ ...editFormData, [e.target.name]: e.target.value });
   };
+
+  const donationTypeConfig = getDonationTypeConfig(donation.donationType);
+  const selectedDonationType = DONATION_TYPES.find(
+    (type) => type.value === editFormData.donationType
+  );
 
   return (
     <tr className="hover:bg-gray-50 transition-colors border-b border-gray-100">
@@ -76,51 +79,13 @@ const UserPaymentRow = ({ payment }: Props) => {
       {isEditing ? (
         <>
           <td className="py-3">
-            <input
-              type="text"
-              name="year"
-              value={editFormData.year}
-              onChange={handleChange}
-              className="input input-bordered w-24 text-sm"
-            />
-          </td>
-          <td className="py-3">
             <Select
-              isMulti
-              options={MONTHS}
-              value={MONTHS.filter((month) =>
-                editFormData.month.includes(month.value)
-              )}
-              onChange={(selectedOptions) =>
+              options={DONATION_TYPES}
+              value={selectedDonationType || null}
+              onChange={(selected) =>
                 setEditFormData({
                   ...editFormData,
-                  month: selectedOptions.map((option) => option.value),
-                })
-              }
-              className="w-full text-sm"
-              menuPlacement="auto"
-              menuPortalTarget={document.body}
-            />
-          </td>
-          <td className="py-3">
-            <input
-              type="number"
-              name="amount"
-              value={editFormData.amount}
-              onChange={handleChange}
-              className="input input-bordered text-sm"
-            />
-          </td>
-          <td className="py-3">
-            <Select
-              options={PAYMENT_STATUSES}
-              value={PAYMENT_STATUSES.filter((status) =>
-                editFormData.status.includes(status.value)
-              )}
-              onChange={(selectedOptions) =>
-                setEditFormData({
-                  ...editFormData,
-                  status: selectedOptions?.value || "",
+                  donationType: selected?.value || "",
                 })
               }
               className="w-full text-sm"
@@ -131,10 +96,45 @@ const UserPaymentRow = ({ payment }: Props) => {
           <td className="py-3">
             <input
               type="datetime-local"
-              name="paymentDate"
-              value={formatLocalDateTime(editFormData.paidAt.toDate())}
-              onChange={handleChange}
+              name="givenAt"
+              value={formatLocalDateTime(editFormData.givenAt.toDate())}
+              onChange={(e) => {
+                const date = new Date(e.target.value);
+                setEditFormData({
+                  ...editFormData,
+                  givenAt: Timestamp.fromDate(date),
+                });
+              }}
               className="input input-bordered text-sm"
+            />
+          </td>
+          <td className="py-3">
+            {donationTypeConfig?.needsAmount && (
+              <input
+                type="number"
+                name="amount"
+                value={editFormData.amount || ""}
+                onChange={handleChange}
+                className="input input-bordered text-sm"
+              />
+            )}
+            {donationTypeConfig?.needsQuantity && (
+              <input
+                type="number"
+                name="quantity"
+                value={editFormData.quantity || ""}
+                onChange={handleChange}
+                className="input input-bordered text-sm"
+              />
+            )}
+          </td>
+          <td className="py-3">
+            <textarea
+              name="description"
+              value={editFormData.description || ""}
+              onChange={handleChange}
+              className="textarea textarea-bordered text-sm"
+              rows={2}
             />
           </td>
           <td className="py-3">
@@ -156,28 +156,13 @@ const UserPaymentRow = ({ payment }: Props) => {
         </>
       ) : (
         <>
-          <td className="font-medium py-3">{payment?.year}</td>
           <td className="py-3">
-            <div className="flex flex-wrap gap-1.5 max-w-xs">
-              {payment?.month?.length ? (
-                payment.month.map((month: string, index: number) => (
-                  <span
-                    key={index}
-                    className="inline-flex items-center px-2.5 py-1 text-xs font-medium bg-indigo-100 text-indigo-800 rounded-md hover:bg-indigo-200 transition-colors"
-                  >
-                    {month}
-                  </span>
-                ))
-              ) : (
-                <span className="text-gray-400 text-sm">-</span>
-              )}
-            </div>
-          </td>
-          <td className="font-semibold text-green-600 py-3">
-            Rs. {payment?.amount?.toLocaleString() || "0"}
+            <span className="inline-flex items-center px-2.5 py-1 text-xs font-medium bg-purple-100 text-purple-800 rounded-md">
+              {DONATION_TYPES.find((t) => t.value === donation.donationType)?.label || donation.donationType}
+            </span>
           </td>
           <td className="text-sm text-gray-600 py-3 whitespace-nowrap">
-            {payment.paidAt.toDate().toLocaleDateString("en-US", {
+            {donation.givenAt.toDate().toLocaleDateString("en-US", {
               year: "numeric",
               month: "short",
               day: "numeric",
@@ -186,19 +171,23 @@ const UserPaymentRow = ({ payment }: Props) => {
             })}
           </td>
           <td className="py-3">
-            <span
-              className={`inline-flex px-2.5 py-1 text-xs font-semibold rounded-full ${
-                payment?.status?.toLowerCase() === "paid"
-                  ? "bg-green-100 text-green-800"
-                  : payment?.status?.toLowerCase() === "pending"
-                  ? "bg-yellow-100 text-yellow-800"
-                  : "bg-gray-100 text-gray-800"
-              }`}
-            >
-              {payment?.status || "N/A"}
-            </span>
+            {donationTypeConfig?.needsAmount && donation.amount && (
+              <span className="font-semibold text-green-600">
+                Rs. {donation.amount.toLocaleString()}
+              </span>
+            )}
+            {donationTypeConfig?.needsQuantity && donation.quantity && (
+              <span className="font-semibold text-blue-600">
+                {donation.quantity} {donation.quantity === 1 ? "unit" : "units"}
+              </span>
+            )}
+            {!donation.amount && !donation.quantity && (
+              <span className="text-gray-400 text-sm">-</span>
+            )}
           </td>
-
+          <td className="text-sm text-gray-600 py-3 max-w-xs truncate">
+            {donation.description || "-"}
+          </td>
           <td className="table-cell align-middle text-center space-x-2 py-3">
             <button
               className="px-3 py-1.5 text-sm font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-md transition-colors"
@@ -222,7 +211,7 @@ const UserPaymentRow = ({ payment }: Props) => {
               Confirm Deletion
             </h2>
             <p className="text-sm text-gray-600 mt-2">
-              Are you sure you want to delete this user? This action cannot be
+              Are you sure you want to delete this donation? This action cannot be
               undone.
             </p>
             <div className="flex justify-end space-x-4 mt-4">
@@ -246,4 +235,4 @@ const UserPaymentRow = ({ payment }: Props) => {
   );
 };
 
-export default UserPaymentRow;
+export default UserDonationRow;
