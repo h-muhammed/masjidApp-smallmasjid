@@ -74,6 +74,7 @@ const Donations: NextPage = () => {
     let filtered = donationData.filter((donation: DonationType) =>
       [
         donation.userId,
+        donation.referenceNumber,
         donation.donationType,
         donation.description,
         donation.givenBy,
@@ -97,12 +98,12 @@ const Donations: NextPage = () => {
     }
 
     let csvContent = `Donation Details of Area ${areaId}\n`;
-    csvContent = "User ID,Type,Given On,Amount,Quantity,Description,Given By\n";
+    csvContent = "User ID,Reference No,Type,Given On,Amount,Quantity,Description,Given By\n";
 
     csvContent += filteredDonations
       .map(
         (donation) =>
-          `"${donation.userId || ""}","${donation.donationType || ""}","${
+          `"${donation.userId || ""}","${donation.referenceNumber || ""}","${donation.donationType || ""}","${
             donation.givenAt.toDate().toLocaleString() || ""
           }","${donation.amount || ""}","${donation.quantity || ""}","${
             donation.description || ""
@@ -239,7 +240,7 @@ const Donations: NextPage = () => {
             <MagnifyingGlassIcon className="h-5 w-5 text-gray-500 mr-2" />
             <input
               type="text"
-              placeholder="Search by User ID, Type, Description, or Given By"
+              placeholder="Search by User ID, Reference No, Type, Description, or Given By"
               value={searchQuery}
               onChange={handleSearch}
               className="flex-grow bg-transparent outline-none text-gray-700 placeholder-gray-400"
@@ -260,6 +261,7 @@ const Donations: NextPage = () => {
               <thead className="bg-gray-100">
                 <tr>
                   <th className="font-semibold text-gray-700 py-3">User ID</th>
+                  <th className="font-semibold text-gray-700 py-3">Reference No</th>
                   <th className="font-semibold text-gray-700 py-3">Type</th>
                   <th className="font-semibold text-gray-700 py-3">Given On</th>
                   <th className="font-semibold text-gray-700 py-3">Amount</th>
@@ -272,7 +274,7 @@ const Donations: NextPage = () => {
                 {isLoading ? (
                   Array.from({ length: 6 }).map((_, index) => (
                     <tr key={index}>
-                      <td colSpan={7} className="text-center py-4">
+                      <td colSpan={8} className="text-center py-4">
                         <div className="skeleton h-10 w-full rounded-none"></div>
                       </td>
                     </tr>
@@ -280,7 +282,7 @@ const Donations: NextPage = () => {
                 ) : filteredDonations.length === 0 ? (
                   <tr>
                     <td
-                      colSpan={7}
+                      colSpan={8}
                       className="text-center py-8 text-gray-500"
                     >
                       No donations found
@@ -297,6 +299,9 @@ const Donations: NextPage = () => {
                       >
                         <td className="py-3 hover:font-semibold hover:text-purple-600 transition-all">
                           {donation.userId}
+                        </td>
+                        <td className="py-3 text-sm text-gray-700">
+                          {donation.referenceNumber || "-"}
                         </td>
                         <td className="py-3">
                           <span className="inline-flex items-center px-2.5 py-1 text-xs font-medium bg-purple-100 text-purple-800 rounded-md">

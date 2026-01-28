@@ -12,6 +12,7 @@ import {
   setDoc,
   Timestamp,
   onSnapshot,
+  limit,
 } from "firebase/firestore";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -529,9 +530,38 @@ export const useGetDonationsOfArea = (areaId: string) => {
 };
 
 export const addDonation = async (donation: DonationType) => {
-  const donationCollection = collection(firestore, "donations");
-  await addDoc(donationCollection, donation);
-  return donation;
+  try {
+    // Remove undefined values - Firestore doesn't accept undefined
+    const cleanedDonation = Object.fromEntries(
+      Object.entries(donation).filter(([_, value]) => value !== undefined)
+    ) as DonationType;
+
+    // Enforce unique reference number (recommended / required in UI)
+    const referenceNumber = cleanedDonation.referenceNumber?.trim();
+    if (referenceNumber) {
+      const donationsCollection = collection(firestore, "donations");
+      const existingQuery = query(
+        donationsCollection,
+        where("referenceNumber", "==", referenceNumber),
+        limit(1)
+      );
+      const existingSnap = await getDocs(existingQuery);
+      if (!existingSnap.empty) {
+        throw new Error("Reference number already exists. Please use a unique reference number.");
+      }
+
+      cleanedDonation.referenceNumber = referenceNumber;
+    }
+    
+    console.log("Attempting to save donation to Firestore:", cleanedDonation);
+    const donationCollection = collection(firestore, "donations");
+    const docRef = await addDoc(donationCollection, cleanedDonation);
+    console.log("Donation saved successfully with ID:", docRef.id);
+    return donation;
+  } catch (error) {
+    console.error("Error in addDonation:", error);
+    throw error;
+  }
 };
 
 export const useAddDonation = (onSuccess: () => void, onError: () => void) => {

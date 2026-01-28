@@ -21,6 +21,7 @@ interface FormValues {
   quantity?: number;
   description?: string;
   givenBy?: string;
+  referenceNumber?: string;
 }
 
 const AddDonation = ({ isModalOpen, onClose, areaId, userId }: Props) => {
@@ -53,10 +54,12 @@ const AddDonation = ({ isModalOpen, onClose, areaId, userId }: Props) => {
     quantity: undefined,
     description: "",
     givenBy: "",
+    referenceNumber: "",
   };
 
   const onSubmit = (values: FormValues) => {
     const donationTypeConfig = getDonationTypeConfig(values.donationType);
+    const referenceNumber = values.referenceNumber?.trim();
     
     // Validate based on donation type requirements
     if (donationTypeConfig?.needsAmount && !values.amount) {
@@ -68,6 +71,11 @@ const AddDonation = ({ isModalOpen, onClose, areaId, userId }: Props) => {
       formik.setFieldError("quantity", "Quantity is required for this donation type");
       return;
     }
+    
+    if (!referenceNumber) {
+      formik.setFieldError("referenceNumber", "Reference number is required");
+      return;
+    }
 
     const formattedValues = {
       userId,
@@ -76,13 +84,24 @@ const AddDonation = ({ isModalOpen, onClose, areaId, userId }: Props) => {
       givenAt: Timestamp.fromDate(new Date(values.givenAt)),
       amount: values.amount,
       quantity: values.quantity,
-      description: values.description || undefined,
-      givenBy: values.givenBy || undefined,
+      description: values.description,
+      givenBy: values.givenBy,
+      referenceNumber,
     };
     
-    addDonation(formattedValues);
-    formik.resetForm();
-    onClose();
+    console.log("Submitting donation:", formattedValues);
+    
+    addDonation(formattedValues, {
+      onSuccess: () => {
+        console.log("Donation saved successfully!");
+        formik.resetForm();
+        onClose();
+      },
+      onError: (error) => {
+        console.error("Error saving donation:", error);
+        // Don't close modal on error so user can retry
+      },
+    });
   };
 
   const formik = useFormik({
@@ -251,6 +270,23 @@ const AddDonation = ({ isModalOpen, onClose, areaId, userId }: Props) => {
                 value={values.givenBy}
                 onBlur={handleBlur}
               />
+            </div>
+
+            <div>
+              <input
+                type="text"
+                name="referenceNumber"
+                placeholder="Reference Number"
+                className={`input input-bordered w-full ${
+                  errors.referenceNumber && touched.referenceNumber ? "input-error" : ""
+                }`}
+                onChange={handleChange}
+                value={values.referenceNumber}
+                onBlur={handleBlur}
+              />
+              {errors.referenceNumber && touched.referenceNumber && (
+                <span className="text-error text-sm">{errors.referenceNumber}</span>
+              )}
             </div>
 
             <button

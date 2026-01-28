@@ -44,4 +44,5 @@ export interface DonationType {
   description?: string;
   givenAt: Timestamp;
   givenBy?: string; // Optional: who gave the donation
+  referenceNumber?: string; // Optional: reference number for the donation
 }

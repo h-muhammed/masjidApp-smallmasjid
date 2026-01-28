@@ -79,6 +79,16 @@ const UserDonationRow = ({ donation }: Props) => {
       {isEditing ? (
         <>
           <td className="py-3">
+            <input
+              type="text"
+              name="referenceNumber"
+              value={editFormData.referenceNumber || ""}
+              onChange={handleChange}
+              className="input input-bordered text-sm"
+              placeholder="Reference No"
+            />
+          </td>
+          <td className="py-3">
             <Select
               options={DONATION_TYPES}
               value={selectedDonationType || null}
@@ -156,6 +166,9 @@ const UserDonationRow = ({ donation }: Props) => {
         </>
       ) : (
         <>
+          <td className="py-3 text-sm text-gray-700">
+            {donation.referenceNumber || "-"}
+          </td>
           <td className="py-3">
             <span className="inline-flex items-center px-2.5 py-1 text-xs font-medium bg-purple-100 text-purple-800 rounded-md">
               {DONATION_TYPES.find((t) => t.value === donation.donationType)?.label || donation.donationType}
