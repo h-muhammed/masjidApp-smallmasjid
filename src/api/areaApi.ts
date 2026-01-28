@@ -533,7 +533,7 @@ export const addDonation = async (donation: DonationType) => {
   try {
     // Remove undefined values - Firestore doesn't accept undefined
     const cleanedDonation = Object.fromEntries(
-      Object.entries(donation).filter(([_, value]) => value !== undefined)
+      Object.entries(donation).filter(([, value]) => value !== undefined)
     ) as DonationType;
 
     // Enforce unique reference number (recommended / required in UI)

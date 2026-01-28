@@ -92,7 +92,7 @@ const Payments: NextPage = () => {
   const filteredPayments = useMemo(() => {
     if (!paymentData) return [];
 
-    let filtered = paymentData.filter((payment: PaymentType) =>
+    const filtered = paymentData.filter((payment: PaymentType) =>
       [
         payment.userId,
         payment.year,
@@ -163,6 +163,19 @@ const Payments: NextPage = () => {
     }
   }, [loading, user, router]);
 
+  // Debug: Log data for troubleshooting
+  useEffect(() => {
+    if (areaData) {
+      console.log("Area Data:", areaData);
+      console.log("Area Code:", areaData.areaCode);
+      console.log("Area ID:", areaId);
+    }
+    if (paymentData) {
+      console.log("Payment Data Count:", paymentData.length);
+      console.log("Sample Payment:", paymentData[0]);
+    }
+  }, [areaData, paymentData, areaId]);
+
   if (!router.isReady) {
     return null;
   }
@@ -181,19 +194,6 @@ const Payments: NextPage = () => {
 
   const isLoading = isPaymentPending || isUsersPending;
   const isAreaDataLoading = !areaData;
-
-  // Debug: Log data for troubleshooting
-  useEffect(() => {
-    if (areaData) {
-      console.log("Area Data:", areaData);
-      console.log("Area Code:", areaData.areaCode);
-      console.log("Area ID:", areaId);
-    }
-    if (paymentData) {
-      console.log("Payment Data Count:", paymentData.length);
-      console.log("Sample Payment:", paymentData[0]);
-    }
-  }, [areaData, paymentData, areaId]);
 
   return (
     <div className="min-h-screen bg-gray-50">
