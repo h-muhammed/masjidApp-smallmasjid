@@ -1,10 +1,12 @@
 // pages/_app.tsx
 import "@/styles/globals.css";
 import type { AppProps } from "next/app";
+import Head from "next/head";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { FirebaseProvider, useFirebase } from "@/contexts/firebaseContext"; // Import the FirebaseProvider
 import Navbar from "@/components/Navbar"; // Import the Navbar component
 import { useRouter } from "next/router";
+import { getMasjidCssVars } from "@/config/masjid";
 
 const queryClient = new QueryClient();
 
@@ -18,6 +20,9 @@ function AppContent({ Component, pageProps }: AppProps) {
 
   return (
     <>
+      <Head>
+        <style dangerouslySetInnerHTML={{ __html: getMasjidCssVars() }} />
+      </Head>
       {showNavbar && <Navbar />}
       <Component {...pageProps} />
     </>

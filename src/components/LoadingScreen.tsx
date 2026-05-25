@@ -1,43 +1,47 @@
 import React from "react";
 import Image from "next/image";
+import { masjidConfig } from "@/config/masjid";
 
 export default function LoadingScreen() {
   return (
-    <div className="fixed inset-0 bg-gradient-to-br from-[#1E5866] to-[#0d3a45] flex flex-col items-center justify-center z-50">
+    <div
+      className="fixed inset-0 bg-gradient-to-br flex flex-col items-center justify-center z-50"
+      style={{
+        backgroundImage: `linear-gradient(to bottom right, ${masjidConfig.primaryColor}, ${masjidConfig.primaryDark})`,
+      }}
+    >
       <div className="flex flex-col items-center justify-center space-y-6">
-        {/* Logo with animation */}
         <div className="relative animate-pulse">
           <Image
-            src="/logo.jpg"
-            alt="App Logo"
+            src={masjidConfig.logoPath}
+            alt={`${masjidConfig.name} logo`}
             width={120}
             height={120}
-            className="rounded-full border-4 border-yellow-500 shadow-2xl"
+            className="rounded-full border-4 shadow-2xl"
+            style={{ borderColor: masjidConfig.primaryColor }}
             priority
           />
         </div>
-        
-        {/* App Name */}
+
         <div className="text-center">
           <h1 className="text-2xl md:text-3xl font-bold text-white mb-2">
-            Ghaneemathul Cassimiya Jumma Mosque
+            {masjidConfig.name}
           </h1>
-          <p className="text-lg text-white/80">
-            Dematagoda Place
-          </p>
+          {masjidConfig.tagline ? (
+            <p className="text-lg text-white/80">{masjidConfig.tagline}</p>
+          ) : null}
         </div>
-        
-        {/* Loading Spinner */}
+
         <div className="flex items-center justify-center mt-4">
           <div className="relative">
-            <div className="w-16 h-16 border-4 border-white/20 border-t-yellow-500 rounded-full animate-spin"></div>
+            <div
+              className="w-16 h-16 border-4 border-white/20 rounded-full animate-spin"
+              style={{ borderTopColor: masjidConfig.primaryColor }}
+            />
           </div>
         </div>
-        
-        {/* Loading Text */}
-        <p className="text-white/70 text-sm animate-pulse">
-          Loading...
-        </p>
+
+        <p className="text-white/70 text-sm animate-pulse">Loading...</p>
       </div>
     </div>
   );

@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { loginWithEmailPassword } from "@/utils/auth";
 import { useRouter } from "next/router";
-import Image from "next/image"; // Import for image handling
+import Image from "next/image";
+import { masjidConfig } from "@/config/masjid";
 
 const LoginForm = () => {
   const [email, setEmail] = useState("");
@@ -23,19 +24,22 @@ const LoginForm = () => {
     <div className="flex justify-center items-center h-screen ">
       <div className="bg-white p-8 rounded-lg border-2 border-gray-300 shadow-lg w-[350px]">
         <div className="mb-6 text-center">
-          {/* Add the company logo */}
           <Image
-            src="/Slogo.png"
-            alt="Logo"
-            className="mx-auto mb-4"
-            width={150} // Set the logo width
-            height={200} // Maintain the aspect ratio
+            src={masjidConfig.logoPath}
+            alt={`${masjidConfig.name} logo`}
+            className="mx-auto mb-4 rounded-full"
+            width={150}
+            height={150}
           />
-          {/* <h2 className="text-2xl font-semibold mb-2">Login</h2> */}
+          <h2 className="text-lg font-semibold text-gray-800 mb-1">
+            {masjidConfig.name}
+          </h2>
+          {masjidConfig.tagline ? (
+            <p className="text-sm text-gray-500 mb-2">{masjidConfig.tagline}</p>
+          ) : null}
           {error && <p className="text-red-500 text-sm">{error}</p>}
         </div>
 
-        {/* Login Form */}
         <form onSubmit={handleSubmit}>
           <input
             type="email"
@@ -55,13 +59,18 @@ const LoginForm = () => {
           />
           <button
             type="submit"
-            className="w-full p-3 bg-[#0078d7] text-white rounded-md hover:bg-[#005bb5]"
+            className="w-full p-3 text-white rounded-md transition-colors"
+            style={{ backgroundColor: masjidConfig.primaryColor }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = masjidConfig.primaryDark;
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = masjidConfig.primaryColor;
+            }}
           >
             Login
           </button>
         </form>
-
-        {/* <p className="text-center text-xs text-gray-500 mt-6">© YourCompany.com</p> */}
       </div>
     </div>
   );

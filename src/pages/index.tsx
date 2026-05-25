@@ -16,6 +16,7 @@ import { useFirebase } from "@/contexts/firebaseContext";
 import { useRouter } from "next/router";
 import { FaUsers, FaMapMarkedAlt, FaMoneyBillWave, FaCreditCard } from "react-icons/fa";
 import { useEffect, useState } from "react";
+import { masjidConfig } from "@/config/masjid";
 
 
 
@@ -116,7 +117,7 @@ const Home: NextPage = () => {
           name="Total Areas"
           amount={areaData?.length || 0}
           icon={<FaMapMarkedAlt className="h-8 w-8 text-white" />}
-          bgColor="#1E5866" // Match color for "Areas"
+          bgColor={masjidConfig.primaryColor}
         />
         <AnalyticsCard
           name="Total Users"

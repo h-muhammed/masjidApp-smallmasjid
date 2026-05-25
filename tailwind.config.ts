@@ -9,7 +9,7 @@ export default {
   theme: {
     extend: {
       colors: {
-        main: "#1E5866",
+        main: "var(--color-primary, #B89758)",
         sub: "#6F6C90",
       },
       fontFamily: {

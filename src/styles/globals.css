@@ -3,6 +3,12 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --color-primary: #b89758;
+  --color-primary-dark: #8a7345;
+  --color-accent: #1a1a1a;
+}
+
 body {
   font-family: "Poppins", sans-serif;
 }
