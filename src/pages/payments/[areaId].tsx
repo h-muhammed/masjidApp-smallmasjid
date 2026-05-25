@@ -243,33 +243,33 @@ const Payments: NextPage = () => {
             name="Total Payments"
             amount={statistics.totalPayments}
             icon={<ChartBarIcon className="h-8 w-8 text-white" />}
-            bgColor="#4F46E5"
+            accentColor="#4F46E5"
           />
           <AnalyticsCard
             name="Total Amount"
             amount={statistics.totalAmount}
             icon={<CurrencyDollarIcon className="h-8 w-8 text-white" />}
             isCurrency={true}
-            bgColor="#10B981"
+            accentColor="#10B981"
           />
           <AnalyticsCard
             name="Paid Users"
             amount={statistics.paidUsersCount}
             icon={<CheckCircleIcon className="h-8 w-8 text-white" />}
-            bgColor="#059669"
+            accentColor="#059669"
           />
           <AnalyticsCard
             name="Unpaid Users"
             amount={statistics.unpaidUsersCount}
             icon={<XCircleIcon className="h-8 w-8 text-white" />}
-            bgColor="#DC2626"
+            accentColor="#DC2626"
           />
           <AnalyticsCard
             name="Payment Rate"
             amount={statistics.paymentRate}
             icon={<UserGroupIcon className="h-8 w-8 text-white" />}
             isPercentage={true}
-            bgColor="#7C3AED"
+            accentColor="#7C3AED"
           />
         </div>
 

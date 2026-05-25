@@ -16,7 +16,10 @@ function AppContent({ Component, pageProps }: AppProps) {
   // Dashboard (`pages/index.tsx`) handles the full-page loading UI on its own.
   useFirebase();
 
-  const showNavbar = router.pathname === "/";
+  const isPublicRoute = router.pathname === "/register";
+  const showNavbar =
+    !isPublicRoute &&
+    (router.pathname === "/" || router.pathname === "/registrations");
 
   return (
     <>

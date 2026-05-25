@@ -182,26 +182,26 @@ const Donations: NextPage = () => {
             name="Total Donations"
             amount={statistics.totalDonations}
             icon={<ChartBarIcon className="h-8 w-8 text-white" />}
-            bgColor="#7C3AED"
+            accentColor="#7C3AED"
           />
           <AnalyticsCard
             name="Total Amount"
             amount={statistics.totalAmount}
             icon={<CurrencyDollarIcon className="h-8 w-8 text-white" />}
             isCurrency={true}
-            bgColor="#10B981"
+            accentColor="#10B981"
           />
           <AnalyticsCard
             name="Total Quantity"
             amount={statistics.totalQuantity}
             icon={<GiftIcon className="h-8 w-8 text-white" />}
-            bgColor="#4F46E5"
+            accentColor="#4F46E5"
           />
           <AnalyticsCard
             name="Donation Types"
             amount={Object.keys(statistics.donationsByType).length}
             icon={<GiftIcon className="h-8 w-8 text-white" />}
-            bgColor="#EC4899"
+            accentColor="#EC4899"
           />
         </div>
 

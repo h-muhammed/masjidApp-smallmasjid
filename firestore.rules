@@ -1,0 +1,54 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isAdmin() {
+      return request.auth != null;
+    }
+
+    function isValidRegistrationCreate() {
+      let data = request.resource.data;
+      return data.status == 'pending'
+        && data.keys().hasAll(['status', 'submittedAt', 'name', 'NIC', 'address', 'contactNo', 'children'])
+        && data.name is string && data.name.size() > 0 && data.name.size() <= 200
+        && data.NIC is string && data.NIC.size() > 0 && data.NIC.size() <= 20
+        && data.address is string && data.address.size() > 0 && data.address.size() <= 500
+        && data.contactNo is string && data.contactNo.size() > 0 && data.contactNo.size() <= 20
+        && data.children is list && data.children.size() <= 20
+        && (!('email' in data) || data.email is string)
+        && (!('notes' in data) || data.notes is string)
+        && (!('spouse' in data) || data.spouse == null || data.spouse is map);
+    }
+
+    match /registrationRequests/{requestId} {
+      allow create: if isValidRegistrationCreate();
+      allow read, update: if isAdmin();
+      allow delete: if false;
+    }
+
+    match /areas/{docId} {
+      allow read, write: if isAdmin();
+    }
+
+    match /users/{docId} {
+      allow read, write: if isAdmin();
+    }
+
+    match /payments/{docId} {
+      allow read, write: if isAdmin();
+    }
+
+    match /donations/{docId} {
+      allow read, write: if isAdmin();
+    }
+
+    match /familyMembers/{docId} {
+      allow read, write: if isAdmin();
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

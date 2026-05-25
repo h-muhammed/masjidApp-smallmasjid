@@ -59,14 +59,7 @@ const LoginForm = () => {
           />
           <button
             type="submit"
-            className="w-full p-3 text-white rounded-md transition-colors"
-            style={{ backgroundColor: masjidConfig.primaryColor }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = masjidConfig.primaryDark;
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = masjidConfig.primaryColor;
-            }}
+            className="w-full p-3 rounded-md font-semibold !bg-main hover:!bg-[var(--color-primary-dark)] !text-white border-0 shadow-sm"
           >
             Login
           </button>

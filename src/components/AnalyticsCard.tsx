@@ -4,9 +4,9 @@ interface Props {
   name: string;
   amount: number;
   icon: React.ReactNode;
-  isCurrency?: boolean; // Optional prop to toggle currency display
-  isPercentage?: boolean; // Optional prop to toggle percentage display
-  bgColor: string; // Background color for the card
+  isCurrency?: boolean;
+  isPercentage?: boolean;
+  accentColor: string;
 }
 
 const AnalyticsCard = ({
@@ -15,7 +15,7 @@ const AnalyticsCard = ({
   icon,
   isCurrency = false,
   isPercentage = false,
-  bgColor,
+  accentColor,
 }: Props) => {
   const formatAmount = () => {
     if (isCurrency) {
@@ -28,15 +28,17 @@ const AnalyticsCard = ({
   };
 
   return (
-    <div
-      className={`shadow-md flex items-center justify-between rounded-lg p-6 w-80 transform transition-transform duration-200 hover:scale-105`}
-      style={{ backgroundColor: bgColor }}
-    >
-      <div className="flex-shrink-0">{icon}</div>
-      <div className="text-right">
-        <p className="text-lg font-semibold text-white">{name}</p>
-        <p className="text-xl font-bold text-white">{formatAmount()}</p>
+    <div className="bg-white rounded-xl border border-slate-200/80 shadow-sm p-5 hover:shadow-md transition-shadow duration-200 h-full">
+      <div
+        className="inline-flex items-center justify-center w-11 h-11 rounded-lg mb-4"
+        style={{ backgroundColor: `${accentColor}18`, color: accentColor }}
+      >
+        {icon}
       </div>
+      <p className="text-sm font-medium text-slate-500 leading-snug">{name}</p>
+      <p className="text-2xl font-bold text-slate-900 mt-1 tracking-tight">
+        {formatAmount()}
+      </p>
     </div>
   );
 };

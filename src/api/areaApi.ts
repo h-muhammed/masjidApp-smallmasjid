@@ -44,6 +44,59 @@ const getAreaById = async (areaId: string) => {
   throw new Error(`Area with areaId ${areaId} not found`);
 };
 
+export type CreateAreaInput = {
+  areaId: string;
+  areaCode: string;
+  name: string;
+  shortName: string;
+};
+
+export const createAreas = async (areas: CreateAreaInput[]) => {
+  const existing = await getAreas();
+  const existingIds = new Set(existing.map((a) => a.areaId));
+
+  const batchIds = new Set<string>();
+  for (const area of areas) {
+    const id = area.areaId.trim();
+    if (!id) throw new Error("Every area must have an Area ID.");
+    if (batchIds.has(id)) throw new Error(`Duplicate Area ID in list: ${id}`);
+    if (existingIds.has(id)) throw new Error(`Area ID already exists: ${id}`);
+    batchIds.add(id);
+  }
+
+  await Promise.all(
+    areas.map((area) => {
+      const areaDoc = doc(firestore, "areas", area.areaId);
+      return setDoc(areaDoc, {
+        areaId: area.areaId,
+        areaCode: area.areaCode || area.areaId,
+        name: area.name,
+        shortName: area.shortName,
+        createAt: Timestamp.now(),
+      });
+    })
+  );
+
+  return areas;
+};
+
+export const useCreateAreas = (
+  onSuccess: () => void,
+  onError: (message: string) => void
+) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (areas: CreateAreaInput[]) => createAreas(areas),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["areas"] });
+      onSuccess();
+    },
+    onError: (error: Error) => {
+      onError(error.message || "Failed to create areas.");
+    },
+  });
+};
+
 export const useGetAreaById = (areaId: string) => {
   return useQuery({
     queryKey: ["area", areaId],

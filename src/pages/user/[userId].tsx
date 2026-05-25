@@ -3,6 +3,7 @@ import {
   useGetUserById,
   useGetDonationsOfUser,
 } from "@/api/areaApi";
+import { useGetFamilyMembers } from "@/api/registrationApi";
 import AddPayment from "@/components/AddPayment";
 import AddDonation from "@/components/AddDonation";
 import GoBackButton from "@/components/GoBackButton";
@@ -28,6 +29,7 @@ const User: NextPage = () => {
     useGetPaymentsOfUser(userId as string);
   const { data: donationData, isPending: isDonationPending } =
     useGetDonationsOfUser(userId as string);
+  const { data: familyMembers = [] } = useGetFamilyMembers(userId as string);
 
   const handleOpenPaymentModal = () => {
     setIsPaymentModalOpen(true);
@@ -235,6 +237,83 @@ const User: NextPage = () => {
             </div>
           </div>
         </div>
+
+        {/* Family members */}
+        {familyMembers.length > 0 ? (
+          <div className="bg-white rounded-xl shadow-md overflow-hidden mb-6 sm:mb-8 border border-gray-200">
+            <div className="bg-gradient-to-r from-amber-600 to-amber-700 px-6 py-4">
+              <h2 className="text-xl font-semibold text-white">
+                Family members ({familyMembers.length})
+              </h2>
+            </div>
+            <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+              {familyMembers.map((member) => (
+                <div
+                  key={member.id}
+                  className="border border-gray-100 rounded-lg p-4 bg-gray-50"
+                >
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="badge badge-sm badge-outline capitalize">
+                      {member.relationship}
+                    </span>
+                    <span className="font-semibold text-gray-900">
+                      {member.name}
+                    </span>
+                  </div>
+                  {member.relationship === "spouse" ? (
+                    <dl className="text-sm text-gray-600 space-y-1">
+                      {member.NIC ? (
+                        <div>
+                          <span className="text-gray-400">NIC: </span>
+                          {member.NIC}
+                        </div>
+                      ) : null}
+                      {member.contactNo ? (
+                        <div>
+                          <span className="text-gray-400">Contact: </span>
+                          {member.contactNo}
+                        </div>
+                      ) : null}
+                      {member.occupation ? (
+                        <div>
+                          <span className="text-gray-400">Occupation: </span>
+                          {member.occupation}
+                        </div>
+                      ) : null}
+                    </dl>
+                  ) : (
+                    <dl className="text-sm text-gray-600 space-y-1">
+                      {member.dateOfBirth ? (
+                        <div>
+                          <span className="text-gray-400">DOB: </span>
+                          {member.dateOfBirth}
+                        </div>
+                      ) : null}
+                      {member.grade ? (
+                        <div>
+                          <span className="text-gray-400">Grade: </span>
+                          {member.grade}
+                        </div>
+                      ) : null}
+                      {member.school ? (
+                        <div>
+                          <span className="text-gray-400">School: </span>
+                          {member.school}
+                        </div>
+                      ) : null}
+                      {member.gender ? (
+                        <div>
+                          <span className="text-gray-400">Gender: </span>
+                          {member.gender}
+                        </div>
+                      ) : null}
+                    </dl>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : null}
 
         {/* Payment Section */}
         <div className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-200">
